@@ -61,14 +61,36 @@ app.get('/login', function(req, res){
 })
 
 
-app.post('/login/', (req, res) => {
-  for (let i in users)
-    req.body.userName === users[i].userName &&
-    req.body.password === users[i].password ? res.render('home') : res.redirect('/')
+app.post('/login/smerg', (req, res) => {
+  // let userItem = req.body;
+  //
+  // console.log(userItem);
 
-    req.session.users.push(type);
+  req.checkBody('userName', 'Must provide a User Name').notEmpty();
+  req.checkBody('password', 'Must provide a password').notEmpty();
 
-    //errors
+  let errors = req.validationErrors();
+
+  console.log(errors);
+
+  if (errors) {
+
+    console.log(errors);
+  //
+  //   res.render('login', {errors: errors, userItem: userItem})
+  }
+  //  else{
+  //   req.session.users.push(userItem);
+  //
+  //   res.redirect('/');
+  // }
+
+  for (var i = 0; i < users.length; i++) {
+    if (req.body.userName === users[i].userName && req.body.password === users[i].password) {
+      res.redirect('/')
+    }
+  }
+  res.redirect('/login')
 
 })
 
