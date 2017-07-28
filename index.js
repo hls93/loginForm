@@ -1,7 +1,7 @@
 const express = require('express');
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
-const session = require ('express-session');
+const session = require('express-session');
 const users = require('./users')
 const expressValidator = require('express-validator');
 
@@ -18,7 +18,9 @@ app.set('view engine', 'handlebars');
 app.use(express.static('public'));
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
 app.use(expressValidator());
 
 // configure session support middleware with express-session
@@ -35,7 +37,9 @@ app.use(express.static('public'));
 
 //tell express to use the bodyParser middleware to parse form data
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({
+  extended: false
+}));
 
 // add express-validator middleware
 app.use(expressValidator());
@@ -52,50 +56,39 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/', function(req, res){
+app.get('/', function(req, res) {
   res.render('home')
 })
 
-app.get('/login', function(req, res){
+app.get('/login', function(req, res) {
   res.render('login')
 })
 
 
 app.post('/login/smerg', (req, res) => {
+  //checks if username and login are complete
   // let userItem = req.body;
-  //
-  // console.log(userItem);
 
   req.checkBody('userName', 'Must provide a User Name').notEmpty();
   req.checkBody('password', 'Must provide a password').notEmpty();
 
-  let errors = req.validationErrors();
+  let errorsArray = req.validationErrors();
 
-  console.log(errors);
+  console.log(errorsArray);
 
-  if (errors) {
+  if (errorsArray) {
 
-    console.log(errors);
-  //
-  //   res.render('login', {errors: errors, userItem: userItem})
+    res.render('login', {
+      errors: errorsArray
+    })
   }
-  //  else{
-  //   req.session.users.push(userItem);
-  //
-  //   res.redirect('/');
-  // }
-
+  //checks for a true username and password
   for (var i = 0; i < users.length; i++) {
     if (req.body.userName === users[i].userName && req.body.password === users[i].password) {
       res.redirect('/')
     }
   }
-  res.redirect('/login')
-
 })
-
-
-
 
 
 // make express listen on port 3000
