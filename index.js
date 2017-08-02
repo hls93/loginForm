@@ -45,49 +45,52 @@ app.use(bodyParser.urlencoded({
 app.use(expressValidator());
 
 app.use((req, res, next) => {
-  // if we don't already have an array of foods
-  if (!req.session.users) {
-    // then create an empty array of foods
-    req.session.users = [];
-  }
-
+  if (!req.session.users)
+    req.session.users = []
   console.log(req.session);
-
   next();
 });
 
 app.get('/', function(req, res) {
-  res.render('home')
+  if (req.session.users.length === 0) {
+    res.redirect('login')
+  } else {
+    res.render('home', {
+      info: req.session.users
+    })
+  }
 })
 
 app.get('/login', function(req, res) {
-  res.render('login')
+  if (req.session.users.length === 0) {
+    res.render('login')
+  } else {
+    res.redirect('/')
+  }
 })
 
 
 app.post('/login/smerg', (req, res) => {
-  //checks if username and login are complete
-  // let userItem = req.body;
 
   req.checkBody('userName', 'Must provide a User Name').notEmpty();
   req.checkBody('password', 'Must provide a password').notEmpty();
 
-  let errorsArray = req.validationErrors();
-
-  console.log(errorsArray);
-
-  if (errorsArray) {
-
-    res.render('login', {
-      errors: errorsArray
-    })
-  }
-  //checks for a true username and password
-  for (var i = 0; i < users.length; i++) {
-    if (req.body.userName === users[i].userName && req.body.password === users[i].password) {
-      res.redirect('/')
+  req.getValidationResult().then(function(result){
+    var errorsArray = result.array()
+    if (errorsArray.length > 0) {
+      res.render('login', {
+        errors: errorsArray
+      })
+    } else {
+    for (var i = 0; i < users.length; i++) {
+      if (req.body.userName === users[i].userName && req.body.password === users[i].password) {
+        (req.session.users).push(users[i])
+        res.redirect('/')
+      }
     }
   }
+  res.redirect('/login')
+})
 })
 
 
